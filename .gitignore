@@ -32,7 +32,8 @@ models/*.pb
 # Dataset
 # ==============================
 dataset/
-
+mudravision_github_workflow.md
+mudravision_implementation_plan.md
 # ==============================
 # Original / downloaded datasets
 # ==============================
