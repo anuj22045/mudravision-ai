@@ -29,22 +29,26 @@ classes = {
 # Which physical coins go into train/test?
 split = {
     "One": {
-        "train": [1, 2, 3, 4, 5, 6],
+        "train": [1, 2, 3, 4, 5],
+        "validation": [6],
         "test": [7]
     },
 
     "Two": {
-        "train": [1, 2, 3],
+        "train": [1, 2],
+        "validation": [3],
         "test": [4]
     },
 
     "Five": {
-        "train": [1, 2, 3, 4, 5, 6, 7],
+        "train": [1, 2, 3, 4, 5, 6],
+        "validation": [7],
         "test": [8, 9]
     },
 
     "Ten": {
-        "train": [1, 2, 3, 4, 5],
+        "train": [1, 2, 3, 4],
+        "validation": [5],
         "test": [6]
     }
 }
@@ -55,7 +59,13 @@ split = {
 # ============================================================
 
 for class_name in classes.values():
+
     (PROJECT_DIR / "train" / class_name).mkdir(
+        parents=True,
+        exist_ok=True
+    )
+
+    (PROJECT_DIR / "validation" / class_name).mkdir(
         parents=True,
         exist_ok=True
     )
@@ -64,7 +74,6 @@ for class_name in classes.values():
         parents=True,
         exist_ok=True
     )
-
 
 # ============================================================
 # 4. COPY IMAGES
@@ -104,6 +113,39 @@ for original_class, class_name in classes.items():
                 destination = (
                     PROJECT_DIR
                     / "train"
+                    / class_name
+                    / new_name
+                )
+
+                shutil.copy2(image_path, destination)
+
+# --------------------------------------------------------
+    # VALIDATION DATA
+    # --------------------------------------------------------
+
+    for coin_number in split[original_class]["validation"]:
+
+        coin_source = class_source / f"Coin {coin_number}"
+
+        for light_folder in coin_source.iterdir():
+
+            if not light_folder.is_dir():
+                continue
+
+            for image_path in light_folder.iterdir():
+
+                if image_path.suffix.lower() not in image_extensions:
+                    continue
+
+                new_name = (
+                    f"{class_name}_coin{coin_number}_"
+                    f"{light_folder.name.replace(' ', '_')}_"
+                    f"{image_path.name}"
+                )
+
+                destination = (
+                    PROJECT_DIR
+                    / "validation"
                     / class_name
                     / new_name
                 )
@@ -155,10 +197,16 @@ print("=" * 50)
 for class_name in classes.values():
 
     train_dir = PROJECT_DIR / "train" / class_name
+    validation_dir = PROJECT_DIR / "validation" / class_name
     test_dir = PROJECT_DIR / "test" / class_name
 
     train_count = sum(
         1 for file in train_dir.iterdir()
+        if file.is_file()
+    )
+
+    validation_count = sum(
+        1 for file in validation_dir.iterdir()
         if file.is_file()
     )
 
@@ -170,5 +218,6 @@ for class_name in classes.values():
     print(
         f"{class_name:10} → "
         f"Train: {train_count:3} | "
+        f"Validation: {validation_count:3} | "
         f"Test: {test_count:3}"
     )
