@@ -69,3 +69,6 @@ Thumbs.db
 # ==============================
 .pytest_cache/
 .mypy_cache/
+
+
+test_preprocessing.py
